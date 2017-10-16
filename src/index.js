@@ -1,23 +1,22 @@
-import React, { Component } from 'react'
+import React from 'react'
 import ReactDOM from 'react-dom'
 import { createStore, combineReducers, applyMiddleware, compose } from 'redux'
-import { Provider, connect } from 'react-redux'
+import { Provider } from 'react-redux'
 import createHistory from 'history/createBrowserHistory'
-import { ConnectedRouter, routerReducer, routerMiddleware, push } from 'react-router-redux'
-import { Route, Switch, Link } from 'react-router-dom'
+import { ConnectedRouter, routerReducer, routerMiddleware } from 'react-router-redux'
 import thunk from 'redux-thunk'
 
 import './index.css'
-// import App from './containers/App'
-import './containers/App.css'
-import Home from './containers/Home'
-import RoomA from './containers/RoomA'
-import RoomB from './containers/RoomB'
+import App from './containers/App'
+import reducers from './reducers'
 import registerServiceWorker from './registerServiceWorker'
 
-import reducers from './reducers'
-
 const history = createHistory()
+
+const reducer = combineReducers({
+  ...reducers,
+  routing: routerReducer,
+})
 
 const myLogger = store => next => action => {
   console.log('myLogger: dispatching', action)
@@ -27,7 +26,6 @@ const myLogger = store => next => action => {
 }
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
-
 const appliedMiddleware = applyMiddleware(
   myLogger,
   routerMiddleware(history),
@@ -35,43 +33,7 @@ const appliedMiddleware = applyMiddleware(
 )
 const enhancer = composeEnhancers(appliedMiddleware)
 
-const reducer = combineReducers({
-  ...reducers,
-  routing: routerReducer,
-})
-
 const store = createStore(reducer, enhancer)
-
-class AppContainer extends Component {
-  render() {
-    const { dispatch } = this.props
-    return (
-      <div className='App'>
-        <div className='Links'>
-          <ul>
-            <li><button onClick={() => { store.dispatch(push('/')) }}>Home</button></li>
-            <li><button onClick={() => { this.props.dispatch(push('/rooma')) }}>Room A</button></li>
-            <li><button onClick={() => dispatch(push('/roomb'))}>Room B</button></li>
-
-            <li><Link to='/'>Home (Link)</Link></li>
-            <li><Link to='/rooma'>Room A (Link)</Link></li>
-            <li><Link to='/roomb'>Room B (Link)</Link></li>
-          </ul>
-        </div>
-        <Switch>
-          <Route exact path='/' component={Home} />
-          <Route path='/rooma' component={RoomA} />
-          <Route path='/roomb' component={RoomB} />
-        </Switch>
-      </div>
-    )
-  }
-}
-
-const App = connect(state => ({
-  // location: state.location,
-  location: state.routing.location,
-}))(AppContainer)
 
 ReactDOM.render(
   <Provider store={store}>
