@@ -2,11 +2,15 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
 import { ConnectedRouter } from 'react-router-redux'
+import createHistory from 'history/createBrowserHistory'
 
 import './index.css'
 import App from './containers/App'
-import { store, history } from './store'
+import createFinalStore from './store'
 import registerServiceWorker from './registerServiceWorker'
+
+const history = createHistory()
+const store = createFinalStore(history)
 
 ReactDOM.render(
   <Provider store={store}>
